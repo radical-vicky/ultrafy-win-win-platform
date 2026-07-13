@@ -1,0 +1,264 @@
+// Ultrafy Fiber Network - "Win-Win Platform"
+// Prisma schema (PostgreSQL via Neon)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  TENANT
+}
+
+enum PropertyType {
+  APARTMENT
+  OFFICE
+  BUILDING
+  HOUSE
+  COMMERCIAL
+  LAND
+}
+
+enum PropertyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  SIGNED
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum UserApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RoomType {
+  BEDROOM
+  BATHROOM
+  KITCHEN
+  DINING_ROOM
+  SITTING_ROOM
+  PARKING
+  GARDEN
+  BALCONY
+  OTHER
+}
+
+enum OtpPurpose {
+  SIGNUP
+  LOGIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  phone         String?   @unique
+  role          Role      @default(OWNER)
+  emailVerified DateTime?
+
+  approvalStatus   UserApprovalStatus @default(PENDING)
+  approvedAt       DateTime?
+  approvedBy       String?
+  rejectedReason   String?
+  termsAcceptedAt  DateTime?
+
+  properties Property[]
+  contracts  Contract[]
+  passwordResetTokens PasswordResetToken[]
+  emailOtps  EmailOtp[]
+  favorites  Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([approvalStatus])
+}
+
+model EmailOtp {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  codeHash  String
+  purpose   OtpPurpose @default(SIGNUP)
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int       @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Property {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  type        PropertyType
+  status      PropertyStatus @default(PENDING)
+
+  address   String
+  city      String
+  state     String
+  zipCode   String
+  latitude  Float?
+  longitude Float?
+
+  sizeSqft   Int?
+  numUnits   Int?
+  bedrooms   Int?
+  bathrooms  Int?
+  roomTypes  RoomType[] @default([])
+  price      Decimal? @db.Decimal(12, 2)
+  priceType  String?
+  isFeatured Boolean  @default(false)
+  viewCount  Int      @default(0)
+
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  images    PropertyImage[]
+  inquiries Inquiry[]
+  contract  Contract?
+  favoritedBy Favorite[]
+
+  approvedAt     DateTime?
+  approvedBy     String?
+  rejectedReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([city, state])
+  @@index([ownerId])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+
+  url       String
+  publicId  String
+  type      MediaType @default(IMAGE)
+  isPrimary Boolean  @default(false)
+  order     Int      @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+model Inquiry {
+  id         String   @id @default(cuid())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+
+  name    String
+  email   String
+  phone   String?
+  message String?
+  status  InquiryStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+
+  @@index([propertyId])
+  @@index([status])
+}
+
+model HeroImage {
+  id       String  @id @default(cuid())
+  url      String
+  publicId String
+  caption  String?
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([isActive, order])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, propertyId])
+  @@index([propertyId])
+}
+
+model Contract {
+  id         String   @id @default(cuid())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  propertyId String   @unique
+
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+
+  status      ContractStatus @default(DRAFT)
+  documentUrl String?
+  terms       String?
+  notes       String?
+
+  startDate DateTime?
+  endDate   DateTime?
+  signedAt  DateTime?
+
+  // in-app "click to sign" record (lightweight e-signature, no third-party required)
+  ownerSignedName String?
+  ownerSignedIp   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([ownerId])
+}
