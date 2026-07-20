@@ -30,7 +30,7 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const body = await res.json().catch(() => ({}));
+      const body: any = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (body.requiresVerification) {
           router.push(`/verify-email?email=${encodeURIComponent(body.email)}`);
@@ -57,7 +57,7 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, code }),
       });
-      const body = await res.json().catch(() => ({}));
+      const body: any = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || "Could not verify that code.");
       const fallback = body.role === "OWNER" ? "/dashboard" : "/properties";
       router.push(searchParams.get("next") || fallback);
