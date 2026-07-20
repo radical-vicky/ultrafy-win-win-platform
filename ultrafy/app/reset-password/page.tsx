@@ -24,7 +24,7 @@ export default function ResetPasswordPage() {
         body: JSON.stringify({ token, password }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body: any = await res.json().catch(() => ({}));
         throw new Error(body.error?.fieldErrors?.password?.[0] || body.error || "Could not reset your password.");
       }
       setDone(true);
