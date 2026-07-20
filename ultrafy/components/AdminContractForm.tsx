@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -45,7 +46,7 @@ export default function AdminContractForm({ propertyId, initial }: { propertyId:
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body: any = await res.json().catch(() => ({}));
         throw new Error(body.error?.formErrors?.[0] || body.error || "Could not save the contract.");
       }
       setSaved(true);
