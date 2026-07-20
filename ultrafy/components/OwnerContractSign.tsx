@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ export default function OwnerContractSign({ propertyId, contract }: { propertyId
         body: JSON.stringify({ typedName }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body: any = await res.json().catch(() => ({}));
         throw new Error(body.error?.fieldErrors?.typedName?.[0] || body.error || "Could not sign the contract.");
       }
       router.refresh();
@@ -104,3 +104,4 @@ export default function OwnerContractSign({ propertyId, contract }: { propertyId
     </div>
   );
 }
+
