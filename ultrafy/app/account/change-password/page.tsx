@@ -20,7 +20,7 @@ export default function ChangePasswordPage() {
         body: JSON.stringify(form),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body: any = await res.json().catch(() => ({}));
         throw new Error(body.error?.fieldErrors?.newPassword?.[0] || body.error || "Could not update your password.");
       }
       setSaved(true);
