@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const body = await res.json().catch(() => ({}));
+      const body: any = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || "Invalid email or password.");
       setCooldown(60);
       setStep("otp");
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, code }),
       });
-      const body = await res.json().catch(() => ({}));
+      const body: any = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || "Could not verify that code.");
       if (body.role !== "ADMIN") {
         await fetch("/api/auth/logout", { method: "POST" });
