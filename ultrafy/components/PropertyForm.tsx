@@ -80,7 +80,7 @@ export default function PropertyForm({ initial }: { initial?: Initial }) {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body: any = await res.json().catch(() => ({}));
         throw new Error(body.error?.formErrors?.[0] || body.error || "Could not save the listing.");
       }
       router.push("/dashboard");
@@ -186,4 +186,4 @@ export default function PropertyForm({ initial }: { initial?: Initial }) {
       </button>
     </form>
   );
-}
+        }
