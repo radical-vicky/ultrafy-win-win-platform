@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-type Me = { userId: string; name: string; role: "OWNER" | "ADMIN" } | null;
+type Me = { userId: string; name: string; role: "OWNER" | "ADMIN" | "TENANT" } | null;
 
 export default function Navbar() {
   const [me, setMe] = useState<Me>(null);
