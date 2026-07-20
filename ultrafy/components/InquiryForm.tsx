@@ -32,7 +32,7 @@ export default function InquiryForm({ propertyId }: { propertyId: string }) {
         body: JSON.stringify({ propertyId, ...form }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body: any = await res.json().catch(() => ({}));
         throw new Error(body.error || "Could not send your inquiry.");
       }
       setStatus("sent");
