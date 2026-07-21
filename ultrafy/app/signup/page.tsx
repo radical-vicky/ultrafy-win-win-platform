@@ -28,7 +28,18 @@ export default function SignupPage() {
       });
       if (!res.ok) {
         const body: any = await res.json().catch(() => ({}));
-        throw new Error(body.error?.fieldErrors ? (Object.values(body.error.fieldErrors) as any[])[0]?.[0] : body.error || "Could not create your account.");
+        let errorMsg = "Could not create your account.";
+        
+        if (body.error?.fieldErrors) {
+          const firstError = Object.values(body.error.fieldErrors)[0];
+          if (firstError && firstError[0]) {
+            errorMsg = firstError[0];
+          }
+        } else if (body.error) {
+          errorMsg = body.error;
+        }
+        
+        throw new Error(errorMsg);
       }
       const params = new URLSearchParams({ email: form.email });
       if (next) params.set("next", next);
@@ -112,4 +123,4 @@ export default function SignupPage() {
       </div>
     </div>
   );
-}
+    }
