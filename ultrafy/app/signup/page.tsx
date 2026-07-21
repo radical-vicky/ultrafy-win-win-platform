@@ -31,9 +31,14 @@ export default function SignupPage() {
         let errorMsg = "Could not create your account.";
         
         if (body.error?.fieldErrors) {
-          const firstError = Object.values(body.error.fieldErrors)[0];
-          if (firstError && firstError[0]) {
-            errorMsg = firstError[0];
+          const fieldErrors = body.error.fieldErrors;
+          // Get the first field's errors
+          const firstFieldKey = Object.keys(fieldErrors)[0];
+          if (firstFieldKey) {
+            const firstFieldErrorArray = fieldErrors[firstFieldKey];
+            if (Array.isArray(firstFieldErrorArray) && firstFieldErrorArray.length > 0) {
+              errorMsg = firstFieldErrorArray[0];
+            }
           }
         } else if (body.error) {
           errorMsg = body.error;
