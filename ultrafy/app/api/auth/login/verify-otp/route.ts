@@ -39,11 +39,11 @@ export async function POST(req: NextRequest) {
   await prisma.emailOtp.update({ where: { id: otp.id }, data: { usedAt: new Date() } });
 
   // Fix: Use type assertion to satisfy TypeScript
-  const token = await signSession({ 
-    userId: user.id, 
-    email: user.email, 
-    role: user.role as "OWNER" | "ADMIN" | "TENANT", // Type assertion
-    name: user.name 
+  const token = await signSession({
+    userId: user.id,        // ← Fixed: was "userid"
+    email: user.email,
+    role: user.role as "OWNER" | "ADMIN" | "TENANT", // ← Single role property with type assertion
+    name: user.name
   });
   
   const res = NextResponse.json({ id: user.id, name: user.name, email: user.email, role: user.role });
