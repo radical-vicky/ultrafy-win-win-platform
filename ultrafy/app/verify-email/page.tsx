@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function VerifyEmailPage() {
+interface VerifyEmailPageProps {
+  searchParams: {
+    email?: string;
+    next?: string;
+  };
+}
+
+export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
-  const next = searchParams.get("next");
+  const email = searchParams?.email || "";
+  const next = searchParams?.next || null;
 
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +40,7 @@ export default function VerifyEmailPage() {
         body: JSON.stringify({ email, code }),
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+        const body: any = await res.json().catch(() => ({}));
         throw new Error(body.error || "Could not verify that code.");
       }
       router.push(next || "/dashboard");
@@ -55,7 +61,7 @@ export default function VerifyEmailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      const body = await res.json().catch(() => ({}));
+      const body: any = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || "Could not resend the code.");
       setResendMessage("A new code is on its way.");
       setCooldown(60);
