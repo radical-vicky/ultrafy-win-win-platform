@@ -28,7 +28,7 @@ export default function SignupPage() {
       });
       if (!res.ok) {
         const body: any = await res.json().catch(() => ({}));
-        throw new Error(body.error?.fieldErrors ? Object.values(body.error.fieldErrors)[0]?.[0] : body.error || "Could not create your account.");
+        throw new Error(body.error?.fieldErrors ? (Object.values(body.error.fieldErrors) as any[])[0]?.[0] : body.error || "Could not create your account.");
       }
       const params = new URLSearchParams({ email: form.email });
       if (next) params.set("next", next);
