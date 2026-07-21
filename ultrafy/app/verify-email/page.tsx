@@ -1,14 +1,20 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-function VerifyEmailForm() {
+interface VerifyEmailPageProps {
+  searchParams: {
+    email?: string;
+    next?: string;
+  };
+}
+
+export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
-  const next = searchParams.get("next");
+  const email = searchParams?.email || "";
+  const next = searchParams?.next || null;
 
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -116,13 +122,5 @@ function VerifyEmailForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function VerifyEmailPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <VerifyEmailForm />
-    </Suspense>
   );
 }
