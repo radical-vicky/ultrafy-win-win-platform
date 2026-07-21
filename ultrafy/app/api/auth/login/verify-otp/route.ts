@@ -38,19 +38,11 @@ export async function POST(req: NextRequest) {
 
   await prisma.emailOtp.update({ where: { id: otp.id }, data: { usedAt: new Date() } });
 
-  // Fix: Ensure role is properly typed for signSession
-  // If signSession only accepts "OWNER" | "ADMIN", you need to handle TENANT separately
-  // Option 1: Map TENANT to a valid role (if that makes sense for your app)
-  // Option 2: Update signSession to accept TENANT as well
-  
-  // For now, let's pass the role as-is if signSession has been updated to accept TENANT
-  // If not, you can uncomment the mapping below:
-  // const roleForSession = user.role === "TENANT" ? "OWNER" : user.role; // Only if mapping makes sense
-  
+  // Fix: Use type assertion to satisfy TypeScript
   const token = await signSession({ 
     userId: user.id, 
     email: user.email, 
-    role: user.role, // Make sure signSession accepts "TENANT"
+    role: user.role as "OWNER" | "ADMIN" | "TENANT", // Type assertion
     name: user.name 
   });
   
