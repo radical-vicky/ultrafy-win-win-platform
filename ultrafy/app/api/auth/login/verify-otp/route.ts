@@ -38,15 +38,21 @@ export async function POST(req: NextRequest) {
 
   await prisma.emailOtp.update({ where: { id: otp.id }, data: { usedAt: new Date() } });
 
-  // Create session token with type assertion
+  // Create session token - only ONE block, properly typed
   const token = await signSession({
     userId: user.id,
     email: user.email,
     role: user.role as "OWNER" | "ADMIN" | "TENANT",
     name: user.name
   });
+
+  const res = NextResponse.json({ 
+    id: user.id, 
+    name: user.name, 
+    email: user.email, 
+    role: user.role 
+  });
   
-  const res = NextResponse.json({ id: user.id, name: user.name, email: user.email, role: user.role });
   res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -54,5 +60,6 @@ export async function POST(req: NextRequest) {
     path: "/",
     maxAge: SESSION_MAX_AGE,
   });
+  
   return res;
 }
