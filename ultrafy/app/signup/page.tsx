@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignupPage() {
+// Component that uses useSearchParams
+function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialRole = searchParams.get("role") === "tenant" ? "TENANT" : "OWNER";
@@ -32,7 +33,6 @@ export default function SignupPage() {
         
         if (body.error?.fieldErrors) {
           const fieldErrors = body.error.fieldErrors;
-          // Get the first field's errors
           const firstFieldKey = Object.keys(fieldErrors)[0];
           if (firstFieldKey) {
             const firstFieldErrorArray = fieldErrors[firstFieldKey];
@@ -127,5 +127,14 @@ export default function SignupPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SignupForm />
+    </Suspense>
   );
 }
